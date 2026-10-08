@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isHRD() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "hrd";
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isHRD());
+      allow create, update: if isHRD() || (signedIn() && request.auth.uid == uid);
+      allow delete: if isHRD();
+    }
+
+    match /attendance/{docId} {
+      allow read: if signedIn() &&
+        (resource.data.uid == request.auth.uid || isHRD());
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow update: if signedIn() &&
+        (resource.data.uid == request.auth.uid || isHRD());
+      allow delete: if isHRD();
+    }
+
+    match /leaves/{docId} {
+      allow read: if signedIn() &&
+        (resource.data.uid == request.auth.uid || isHRD());
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow update: if isHRD();
+      allow delete: if isHRD();
+    }
+  }
+}

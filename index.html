@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Absensi Karyawan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <section id="loginPage" class="auth-page">
+      <div class="auth-card">
+        <div class="brand">SAK</div>
+        <h1>Sistem Absensi Karyawan</h1>
+        <p class="muted">Login untuk mengakses sistem.</p>
+        <form id="loginForm">
+          <label>Email
+            <input id="loginEmail" type="email" required placeholder="nama@perusahaan.com">
+          </label>
+          <label>Password
+            <input id="loginPassword" type="password" required placeholder="••••••••">
+          </label>
+          <button class="btn primary" type="submit">Login</button>
+          <p id="loginError" class="error"></p>
+        </form>
+        <div class="demo-box">
+          <b>Mode demo:</b> gunakan akun Firebase yang Anda buat di Firebase Authentication.
+        </div>
+      </div>
+    </section>
+
+    <section id="dashboardPage" class="hidden">
+      <header class="topbar">
+        <div>
+          <h2>Sistem Absensi Karyawan</h2>
+          <span id="userRoleBadge" class="badge"></span>
+        </div>
+        <div class="top-actions">
+          <span id="currentUser"></span>
+          <button id="logoutBtn" class="btn danger">Logout</button>
+        </div>
+      </header>
+
+      <main class="container">
+        <div id="employeeView" class="hidden">
+          <div class="hero">
+            <div>
+              <p class="muted">Selamat datang</p>
+              <h1 id="employeeName">Karyawan</h1>
+              <p id="liveClock"></p>
+            </div>
+            <div class="status-card">
+              <span>Status hari ini</span>
+              <strong id="todayStatus">Belum absen</strong>
+            </div>
+          </div>
+
+          <div class="grid two">
+            <div class="card">
+              <h3>Absensi Hari Ini</h3>
+              <div class="attendance-times">
+                <div><span>Masuk</span><b id="todayIn">-</b></div>
+                <div><span>Pulang</span><b id="todayOut">-</b></div>
+              </div>
+              <div class="button-row">
+                <button id="checkInBtn" class="btn success">Absen Masuk</button>
+                <button id="checkOutBtn" class="btn warning">Absen Pulang</button>
+              </div>
+              <p id="attendanceMessage" class="muted"></p>
+            </div>
+
+            <div class="card">
+              <h3>Pengajuan Izin / Sakit</h3>
+              <form id="leaveForm">
+                <label>Jenis
+                  <select id="leaveType" required>
+                    <option value="Izin">Izin</option>
+                    <option value="Sakit">Sakit</option>
+                  </select>
+                </label>
+                <label>Tanggal
+                  <input id="leaveDate" type="date" required>
+                </label>
+                <label>Alasan
+                  <textarea id="leaveReason" rows="3" required></textarea>
+                </label>
+                <button class="btn primary" type="submit">Ajukan</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-head">
+              <h3>Riwayat Absensi Saya</h3>
+              <button id="exportMyBtn" class="btn secondary">Export CSV</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Tanggal</th><th>Masuk</th><th>Pulang</th><th>Status</th></tr></thead>
+                <tbody id="myAttendanceBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Riwayat Izin / Sakit</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Tanggal</th><th>Jenis</th><th>Alasan</th><th>Status</th></tr></thead>
+                <tbody id="myLeaveBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="hrView" class="hidden">
+          <div class="hero">
+            <div>
+              <p class="muted">Panel HRD</p>
+              <h1>Monitoring Kehadiran</h1>
+              <p id="hrClock"></p>
+            </div>
+            <button id="printBtn" class="btn primary">Cetak Laporan</button>
+          </div>
+
+          <div class="stats">
+            <div class="stat"><span>Total Karyawan</span><strong id="statEmployees">0</strong></div>
+            <div class="stat"><span>Hadir Hari Ini</span><strong id="statPresent">0</strong></div>
+            <div class="stat"><span>Belum Absen</span><strong id="statAbsent">0</strong></div>
+            <div class="stat"><span>Izin/Sakit Hari Ini</span><strong id="statLeave">0</strong></div>
+          </div>
+
+          <div class="card">
+            <div class="section-head">
+              <h3>Data Karyawan</h3>
+              <button id="addEmployeeBtn" class="btn primary">+ Tambah Karyawan</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Nama</th><th>Email</th><th>Jabatan</th><th>Role</th></tr></thead>
+                <tbody id="employeeBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-head">
+              <h3>Laporan Absensi</h3>
+              <button id="exportAllBtn" class="btn secondary">Export CSV</button>
+            </div>
+            <div class="filters">
+              <input id="reportDate" type="date">
+              <input id="searchEmployee" type="search" placeholder="Cari nama/email...">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Tanggal</th><th>Nama</th><th>Email</th><th>Masuk</th><th>Pulang</th><th>Status</th></tr></thead>
+                <tbody id="allAttendanceBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Pengajuan Izin / Sakit</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Tanggal</th><th>Nama</th><th>Jenis</th><th>Alasan</th><th>Status</th><th>Aksi</th></tr></thead>
+                <tbody id="allLeaveBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </section>
+
+    <div id="employeeModal" class="modal hidden">
+      <div class="modal-card">
+        <button class="close" id="closeModal">×</button>
+        <h3>Tambah Karyawan</h3>
+        <form id="employeeForm">
+          <label>Nama<input id="newName" required></label>
+          <label>Email<input id="newEmail" type="email" required></label>
+          <label>Jabatan<input id="newPosition" required></label>
+          <label>Role
+            <select id="newRole"><option value="employee">Karyawan</option><option value="hrd">HRD</option></select>
+          </label>
+          <p class="muted small">Akun login tetap dibuat melalui Firebase Authentication. Setelah membuat akun, masukkan UID pengguna tersebut ke profil bila diperlukan.</p>
+          <label>UID Firebase<input id="newUid" required placeholder="UID dari Firebase Authentication"></label>
+          <button class="btn primary" type="submit">Simpan Data</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
